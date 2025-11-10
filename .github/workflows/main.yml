@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
-    - cron: '10 8 * * *' # 每天午夜 UTC 运行
+    - cron: '20 8 * * *' 
 
 jobs:
   build:
