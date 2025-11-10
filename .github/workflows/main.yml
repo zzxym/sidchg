@@ -6,13 +6,13 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
-    - cron: '20 8 * * *' 
+    - cron: '40 8 * * *' 
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # 允许写入内容（用于提交 changes）
+      contents: write # 允许写入内容（用于提交和发布）
 
     steps:
     # 1. 检出代码
@@ -24,50 +24,65 @@ jobs:
       with:
         python-version: "3.10"
 
-    # ----- paddleocr 安装步骤 -----
-    # 3. 安装 PaddlePaddle (CPU 版本，如需 GPU 请调整)
-    #    注意：这里直接指定了 GPU 版本，如果你的 runner 没有 GPU，需要改为 CPU 版本
-    #    https://www.paddlepaddle.org.cn/install/quick?docurl=/documentation/docs/zh/install/pip/linux-quickstart.html
-    #    CPU 版本安装命令示例：python -m pip install paddlepaddle==3.0.0 -i https://www.paddlepaddle.org.cn/packages/stable/cpu/
-    #- name: Install PaddlePaddle
-    #  run: |
-    #    python -m pip install --upgrade pip
-    #    # 此处使用 CPU 版本，以兼容大多数 runner 环境
-    #    # 如果你的 runner 支持 GPU 且有需求，请参考 PaddlePaddle 官网选择合适的 GPU 版本安装命令
-    #    pip install paddlepaddle==3.0.0 -i https://www.paddlepaddle.org.cn/packages/stable/cpu/
-
-    # 4. 安装 PaddleOCR
-    #- name: Install PaddleOCR
-    #  run: pip install "paddleocr[all]"
-
-    # 5. 安装其他 Python 依赖 (如果 requirements.txt 中包含 requests, Pillow 等)
-    #    注意：移除 Tesseract 相关依赖，因为我们不再使用它
+    # 3. 安装其他 Python 依赖
     - name: Install other Python dependencies
       run: |
-        # 确保 requirements.txt 不包含 tesseract 相关包
         pip install -r requirements.txt
 
-    # 6. 运行 OCR 脚本
-    #    该脚本应已更新为使用 paddleocr
+    # 4. 运行 OCR 脚本
     - name: Run OCR script
       env:
-        TZ: Asia/Shanghai # 设置时区，可选
+        TZ: Asia/Shanghai
       run: |
-        python ocr.py # 假设你的主脚本名为 ocr.py
+        python ocr.py
 
-    # 7. 提交并推送 getsid.bat 文件 (如果发生更改)
+    # 5. 提交并推送 getsid.bat 文件
     - name: Commit and push getsid.bat
+      id: commit_step  # 标记步骤ID用于后续判断
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        # 添加 changes to getsid.bat if it exists and has been modified
-        # Use `git status --porcelain` to check for changes more robustly
         if [[ $(git status --porcelain | grep "getsid.bat") ]]; then
           echo "Changes detected in getsid.bat, committing..."
           git add getsid.bat
           git commit -m "Automate update of getsid.bat using PaddleOCR"
+          git push
+          echo "commit_pushed=true" >> $GITHUB_OUTPUT  # 设置输出变量标记提交成功
         else
           echo "No changes to commit for getsid.bat."
+          echo "commit_pushed=false" >> $GITHUB_OUTPUT
         fi
-        git push || echo "Nothing to push."
 
+    # 6. 检查是否有新提交（用于决定是否发布）
+    - name: Check if new commit was pushed
+      id: check_commit
+      run: |
+        echo "Commit pushed status: ${{ steps.commit_step.outputs.commit_pushed }}"
+
+    # 7. 创建Release（仅当有新提交时）
+    - name: Create Release
+      if: steps.commit_step.outputs.commit_pushed == 'true'
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.run_number }}-$(date +%Y%m%d)  # 版本号格式：v运行次数-日期
+        release_name: getsid.bat Update v${{ github.run_number }}  # Release名称
+        body: |
+          自动更新的getsid.bat文件
+          生成时间: $(date +%Y-%m-%d %H:%M:%S)
+        draft: false  # 非草稿
+        prerelease: false  # 非预发布
+
+    # 8. 上传getsid.bat到Release（仅当有新提交时）
+    - name: Upload Release Asset
+      if: steps.commit_step.outputs.commit_pushed == 'true'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}  # 从创建Release步骤获取上传URL
+        asset_path: ./getsid.bat  # 本地文件路径
+        asset_name: getsid.bat  # 上传后的文件名
+        asset_content_type: application/octet-stream  # 文件类型（二进制）
