@@ -23,7 +23,7 @@
 
 ## 如何使用
 
-您只需从本仓库下载 `getsid.bat` 脚本即可使用。该脚本每天都会自动更新，以确保您获取到最新的试用密钥。
+您只需从本仓库下载 `getsid.bat` 脚本和sidchg64-3.0k.exe即可使用。该脚本每天都会自动更新，以确保您获取到最新的试用密钥。
 
 ### 一键运行 (PowerShell)
 
@@ -38,8 +38,8 @@ if (-not (Test-Path $dir)) {
 cd $dir
 
 # 下载 sidchg64-3.0k.exe 和 getsid.bat
-Invoke-WebRequest -Uri "https://ghproxy.net/https://raw.githubusercontent.com/Sirius2016/windows-change-sid/main/sidchg64-3.0k.exe" -OutFile "sidchg64-3.0k.exe"
-Invoke-WebRequest -Uri "https://ghproxy.net/https://raw.githubusercontent.com/Sirius2016/windows-change-sid/main/getsid.bat" -OutFile "getsid.bat"
+Invoke-WebRequest -Uri "https://ghproxy.net/https://raw.githubusercontent.com/zzxym/sidchg/main/sidchg64-3.0k.exe" -OutFile "sidchg64-3.0k.exe"
+Invoke-WebRequest -Uri "https://ghproxy.net/https://raw.githubusercontent.com/zzxym/sidchg/main/getsid.bat" -OutFile "getsid.bat"
 
 # 运行批处理脚本
 ./getsid.bat
