@@ -9,7 +9,7 @@
 
 1.  **下载图片**：从 `https://www.stratesave.com/html/images/sidchgtrial.png` 下载包含试用密钥的图片。
 2.  **OCR 识别**：使用光学字符识别（OCR）技术从图片中提取密钥。
-3.  **生成批处理脚本**：生成一个名为 `getsid.bat` 的批处理脚本，该脚本使用提取到的密钥来运行 SID 修改工具 (`sidchg64-3.0k.exe`)。
+3.  **生成批处理脚本**：生成一个名为 `getsid.bat` 的批处理脚本，该脚本使用提取到的密钥来运行 SID 修改工具 (`sidchg64-3.0n.exe`)。
 
 ## 使用 GitHub Actions 实现自动化更新使用秘钥
 
@@ -23,7 +23,7 @@
 
 ## 如何使用
 
-您只需从本仓库下载 `getsid.bat` 脚本和sidchg64-3.0k.exe即可使用。该脚本每天都会自动更新，以确保您获取到最新的试用密钥。
+您只需从本仓库下载 `getsid.bat` 脚本和sidchg64-3.0n.exe即可使用。该脚本每天都会自动更新，以确保您获取到最新的试用密钥。
 
 ### 一键运行 (PowerShell)
 
@@ -37,12 +37,12 @@ if (-not (Test-Path $dir)) {
 }
 cd $dir
 
-# 下载 sidchg64-3.0k.exe 和 getsid.bat
-Invoke-WebRequest -Uri "https://ghproxy.net/https://raw.githubusercontent.com/zzxym/sidchg/main/sidchg64-3.0k.exe" -OutFile "sidchg64-3.0k.exe"
+# 下载 sidchg64-3.0n.exe 和 getsid.bat
+Invoke-WebRequest -Uri "https://ghproxy.net/https://raw.githubusercontent.com/zzxym/sidchg/main/sidchg64-3.0n.exe" -OutFile "sidchg64-3.0n.exe"
 Invoke-WebRequest -Uri "https://ghproxy.net/https://raw.githubusercontent.com/zzxym/sidchg/main/getsid.bat" -OutFile "getsid.bat"
 
 # 运行批处理脚本
 ./getsid.bat
 ```
 
-**注意**：为了使 `getsid.bat` 脚本正常工作，您需要将 `sidchg64-3.0k.exe` 工具与 `getsid.bat` 脚本放置在同一目录下。
+**注意**：为了使 `getsid.bat` 脚本正常工作，您需要将 `sidchg64-3.0n.exe` 工具与 `getsid.bat` 脚本放置在同一目录下。

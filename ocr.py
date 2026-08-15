@@ -274,7 +274,7 @@ if __name__ == "__main__":
     # 生成bat文件内容
     bat_content = f'''@echo off
 cd %~dp0
-sidchg64-3.0k.exe /KEY="{result}" /F /R /OD /RESETALLAPPS'''
+sidchg64-3.0n.exe /KEY="{result}" /F /R /OD /RESETALLAPPS'''
     
     # 在脚本目录下生成getsid.bat文件
     bat_path = os.path.join(script_dir, 'getsid.bat')
